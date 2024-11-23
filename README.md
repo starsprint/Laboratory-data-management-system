@@ -36,4 +36,5 @@ deactivate
 ## 三、配置connector.py
 在connector.py中配置对应的用户名（默认postgres）、用户密码、数据库名称（sql脚本中创建的数据库名称:labdata）、数据库主机地址（默认localhost）、数据库端口（默认5432）。
 
-## 
+## 四、运行程序
+切换到项目所在目录下，进入虚拟环境，运行 python main.py即可
