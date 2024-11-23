@@ -9,7 +9,7 @@ class Connector:
 
     def __init__(self):
         self.__userName = 'postgres'       # 数据库用户名
-        self.__password = '123456'        # 数据库密码
+        self.__password = '123456'        # 用户密码
         self.__databaseName = 'labdata'   # 数据库名称
         self.__host = 'localhost'         # 数据库主机地址
         self.__port = 5432                # 数据库端口
