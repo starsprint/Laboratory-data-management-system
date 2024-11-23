@@ -27,7 +27,9 @@ python -m venv venv
 deactivate
 ```
 激活虚拟环境后如图：
+
 ![image](https://github.com/user-attachments/assets/4e40be9a-f39d-44de-8320-732e70cd44d1)
+
 注意最前面的(venv)，这个是你创建的虚拟环境的名称，一会代码一定要在这个虚拟幻境里跑，要不然就白配置了
 然后输入pip install -r requirements.txt回车，安装相关依赖。
 
