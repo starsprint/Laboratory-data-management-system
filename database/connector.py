@@ -1,6 +1,6 @@
-import pymysql
+import psycopg2
+from psycopg2 import sql
 from PySide6.QtWidgets import QMessageBox
-from lib.share import SI
 
 
 class Connector:
@@ -8,43 +8,46 @@ class Connector:
     __cursor = None
 
     def __init__(self):
-        self.__userName = 'root'
-        self.__password = 'root'
-        self.__databaseName = 'bookdb'
-        self.__port = 3306
+        self.__userName = 'postgres'       # 数据库用户名
+        self.__password = '123456'        # 数据库密码
+        self.__databaseName = 'labdata'   # 数据库名称
+        self.__host = 'localhost'         # 数据库主机地址
+        self.__port = 5432                # 数据库端口
         try:
-            Connector.__connection = pymysql.connect(host='localhost',
-                                                     user=self.__userName,
-                                                     password=self.__password,
-                                                     database=self.__databaseName,
-                                                     port=self.__port)
+            # 初始化数据库连接
+            Connector.__connection = psycopg2.connect(
+                host=self.__host,
+                user=self.__userName,
+                password=self.__password,
+                dbname=self.__databaseName,
+                port=self.__port
+            )
             Connector.__cursor = Connector.__connection.cursor()
-        except:
-            QMessageBox.critical(SI.g_mainWindow, '错误',
-                                 '数据库链接错误，请检查用户名、密码、端口号和数据库名是否已正确设置')
+        except Exception as e:
+            # 如果连接失败，弹出错误提示框
+            QMessageBox.critical(None, '数据库连接错误',
+                                 f'无法连接到数据库，请检查用户名、密码、主机地址和端口是否正确。\n错误信息：{e}')
 
     @staticmethod
     def get_cursor():
-        if Connector.__connection is not None:
-            Connector.__connection.commit()
-            Connector.__cursor.close()
-            Connector.__connection.close()
-        Connector()
+        """获取游标对象"""
+        if Connector.__cursor is None or Connector.__connection is None:
+            Connector()
         return Connector.__cursor
 
     @staticmethod
     def get_connection():
-        if Connector.__connection is not None:
-            Connector.__connection.commit()
-            Connector.__cursor.close()
-            Connector.__connection.close()
-        Connector()
+        """获取数据库连接对象"""
+        if Connector.__connection is None:
+            Connector()
         return Connector.__connection
 
     @staticmethod
     def close_connection():
+        """关闭数据库连接"""
         if Connector.__cursor is not None:
+            Connector.__cursor.close()
+        if Connector.__connection is not None:
             Connector.__connection.close()
         Connector.__connection = None
         Connector.__cursor = None
-

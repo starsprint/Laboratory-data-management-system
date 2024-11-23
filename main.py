@@ -1,11 +1,11 @@
 from PySide6.QtWidgets import QApplication
-from widget.mainwindow import MainWindow
-from lib.share import SI
-from database.connector import Connector
+from ui.main_window import MainApp
 
-if __name__ == '__main__':
+def main():
     app = QApplication([])
-    widget = MainWindow(None)
-    widget.show()
+    main_window = MainApp()
+    main_window.show()
     app.exec()
-    Connector.close_connection()
+
+if __name__ == "__main__":
+    main()
