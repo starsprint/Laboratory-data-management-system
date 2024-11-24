@@ -38,3 +38,21 @@ deactivate
 
 ## 四、运行程序
 切换到项目所在目录下，进入虚拟环境，运行 python main.py即可
+
+## 文件注释
+1. database目录下：
++ connector.py：定义了一个Connector类，用于使用psycopg2库管理到PostgreSQL数据库的连接。
+2. function目录下：
++ functions.py：包含一组用于管理数据库中的论文、图书、读者和日志的函数。
+table目录下：
++ books_info.py：定义了一个图形用户界面（GUI），用于管理books表中的图书信息。
++ logs_info.py：定义了一个图形用户界面（GUI），用于管理logs表中的图书信息。
++ readers_info.py：定义了一个图形用户界面（GUI），用于管理readers表中的图书信息。
++ theses_info.py：定义了一个图形用户界面（GUI），用于管理theses表中的图书信息。
++ user_info.py：。。。
+3. ui目录下：
++ admin_ui.py：为管理面板定义了一个图形用户界面，允许管理员管理系统的各个方面，如图书、论文、阅读器和日志。
++ guest_ui.py：为游客定义的界面。
++ user_ui.py：为一般用户定义的界面。
++ main_window.py：主界面。
+4. labdb.sql脚本文件，用于创建labdata数据库。
