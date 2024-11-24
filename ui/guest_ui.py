@@ -1,54 +1,58 @@
-from PySide6.QtWidgets import QMainWindow, QPushButton, QVBoxLayout, QWidget, QMessageBox, QLabel, QListWidget, QDialog, QHBoxLayout
-from PySide6.QtGui import QFont
-from table.books_info import BookInfoUI  
-from table.theses_info import ThesisInfoUI  
+from PySide6.QtWidgets import QMainWindow, QPushButton, QVBoxLayout, QWidget
+from table.books_info import BookInfoUI
+from table.theses_info import ThesisInfoUI
 
 class GuestUI(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("游客操作界面")
-        self.setGeometry(100, 100, 600, 400)
+        self.setGeometry(100, 100, 800, 600)
 
-        # Set font for buttons
-        button_font = QFont("Arial", 12)
+        # Create buttons
+        browse_books_btn = QPushButton("浏览公开图书")
+        browse_theses_btn = QPushButton("浏览公开论文")
+        return_btn = QPushButton("返回")
 
-        # 功能按钮
-        browse_books_btn = QPushButton("浏览图书")
-        browse_theses_btn = QPushButton("浏览论文")
-        back_btn = QPushButton("返回")
+        # Enlarge buttons
+        button_style = """
+            QPushButton {
+                font-size: 18px;
+                padding: 15px;
+                margin: 10px;
+                border-radius: 8px;
+                background-color: #4CAF50;
+                color: white;
+            }
+            QPushButton:hover {
+                background-color: #45a049;
+            }
+        """
+        browse_books_btn.setStyleSheet(button_style)
+        browse_theses_btn.setStyleSheet(button_style)
+        return_btn.setStyleSheet(button_style)
 
-        # Apply font to buttons
-        for btn in [browse_books_btn, browse_theses_btn, back_btn]:
-            btn.setFont(button_font)
-            btn.setFixedHeight(40)
+        # Connect buttons to their respective actions
+        browse_books_btn.clicked.connect(self.open_books_info)
+        browse_theses_btn.clicked.connect(self.open_theses_info)
+        return_btn.clicked.connect(self.close)
 
-        # 布局
+        # Layout
         layout = QVBoxLayout()
         layout.addWidget(browse_books_btn)
         layout.addWidget(browse_theses_btn)
+        layout.addWidget(return_btn)
 
-        # Add return button at the bottom
-        button_layout = QHBoxLayout()
-        button_layout.addStretch()
-        button_layout.addWidget(back_btn)
-        layout.addLayout(button_layout)
-
-        # 事件绑定
-        browse_books_btn.clicked.connect(self.browse_books_action)
-        browse_theses_btn.clicked.connect(self.browse_theses_action)
-        back_btn.clicked.connect(self.close)
-
-        # 设置主窗口
+        # Set central widget
         container = QWidget()
         container.setLayout(layout)
         self.setCentralWidget(container)
 
-    def browse_books_action(self):
-        # Open the book information dialog
-        book_info_dialog = BookInfoUI()
-        book_info_dialog.exec()  # Use exec to open the dialog modally
+    def open_books_info(self):
+        """Open the book browsing interface for guests."""
+        book_info_dialog = BookInfoUI(user_role='guest')
+        book_info_dialog.exec()
 
-    def browse_theses_action(self):
-        # Open the thesis information dialog
-        thesis_info_dialog = ThesisInfoUI()
-        thesis_info_dialog.exec()  # Use exec to open the dialog modally
+    def open_theses_info(self):
+        """Open the thesis browsing interface for guests."""
+        thesis_info_dialog = ThesisInfoUI(user_role='guest')
+        thesis_info_dialog.exec()

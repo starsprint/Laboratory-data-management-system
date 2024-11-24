@@ -1,5 +1,5 @@
 from PySide6.QtWidgets import QDialog, QVBoxLayout, QTableWidget, QTableWidgetItem, QPushButton
-from database.queries import query_users  
+from function.functions import query_users  
 
 class UserInfoUI(QDialog):
     def __init__(self):
