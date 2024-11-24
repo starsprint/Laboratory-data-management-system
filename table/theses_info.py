@@ -1,6 +1,6 @@
 from PySide6.QtWidgets import QDialog, QVBoxLayout, QHBoxLayout, QTableWidget, QTableWidgetItem, QPushButton, QLabel, QMessageBox, QWidget, QInputDialog, QSizePolicy
-from function.functions import query_theses, query_thesis, add_thesis, edit_thesis, delete_thesis, download_thesis, get_thesis_statistics, upload_thesis
-
+from function.functions import query_theses, query_thesis, add_thesis, edit_thesis, delete_thesis, download_thesis, get_thesis_statistics, upload_thesis, query_thesis_by_doi
+from functools import partial
 class ThesisInfoUI(QDialog):
     def __init__(self, user_role):
         super().__init__()
@@ -78,8 +78,9 @@ class ThesisInfoUI(QDialog):
                 edit_btn.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
                 delete_btn.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
                 
-                edit_btn.clicked.connect(lambda _, r=row: self.edit_thesis(r))
-                delete_btn.clicked.connect(lambda _, r=row: self.delete_thesis(r))
+                # Use partial to bind the row index to the button click handlers
+                edit_btn.clicked.connect(partial(self.edit_thesis, row))
+                delete_btn.clicked.connect(partial(self.delete_thesis, row))
                 action_layout.addWidget(edit_btn)
                 action_layout.addWidget(delete_btn)
             elif self.user_role == 'reader':
@@ -91,7 +92,7 @@ class ThesisInfoUI(QDialog):
                 # Set size policy to allow expansion
                 download_btn.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
                 
-                download_btn.clicked.connect(lambda _, r=row: self.download_thesis(r))
+                download_btn.clicked.connect(partial(self.download_thesis, row))
                 action_layout.addWidget(download_btn)
 
             action_widget = QWidget()
@@ -108,15 +109,34 @@ class ThesisInfoUI(QDialog):
                 QMessageBox.warning(self, "查找失败", "未找到该论文。")
 
     def add_thesis(self):
-        # Example logic to add a thesis
-        title, ok = QInputDialog.getText(self, "添加论文", "输入论文标题:")
-        if ok and title:
+        try:
+            # Get DOI from user input
+            doi, ok = QInputDialog.getText(self, "添加论文", "输入DOI:")
+            if not ok or not doi:
+                return
+
+            # Check if DOI already exists
+            existing_thesis = query_thesis_by_doi(doi)
+            if existing_thesis:
+                QMessageBox.warning(self, "错误", "该DOI已存在，请输入不同的DOI。")
+                return
+
+            # Get additional thesis details
+            title, ok = QInputDialog.getText(self, "添加论文", "输入论文标题:")
+            if not ok or not title:
+                return
+
             author, ok = QInputDialog.getText(self, "添加论文", "输入作者:")
-            if ok and author:
-                doi, ok = QInputDialog.getText(self, "添加论文", "输入DOI:")
-                if ok and doi:
-                    add_thesis(title, author, doi)
-                    self.load_thesis_data()  # Refresh the table
+            if not ok or not author:
+                return
+
+            # Proceed with adding the thesis
+            add_thesis(title, author, doi)
+            QMessageBox.information(self, "成功", "论文已成功添加。")
+            self.load_thesis_data()  # Refresh the table to show the new thesis
+
+        except Exception as e:
+            QMessageBox.critical(self, "错误", f"添加论文时出错: {e}")
 
     def edit_thesis(self, row):
         # Example logic to edit a thesis

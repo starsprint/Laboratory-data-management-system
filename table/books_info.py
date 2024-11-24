@@ -1,4 +1,5 @@
 from datetime import datetime
+from functools import partial
 from PySide6.QtWidgets import QDialog, QVBoxLayout, QHBoxLayout, QTableWidget, QTableWidgetItem, QPushButton, QLabel, QMessageBox, QWidget, QInputDialog, QSizePolicy
 from function.functions import query_books, query_book, add_book, edit_book, delete_book, borrow_book, return_book, get_book_statistics
 
@@ -15,10 +16,11 @@ class BookInfoUI(QDialog):
         # Top layout for buttons
         top_layout = QHBoxLayout()
         
-        # Common buttons for all users
-        find_book_btn = QPushButton("查找图书")
-        find_book_btn.clicked.connect(self.find_book)
-        top_layout.addWidget(find_book_btn)
+        # Common buttons for reader and admin
+        if user_role == 'reader' or user_role == 'admin':
+            find_book_btn = QPushButton("查找图书")
+            find_book_btn.clicked.connect(self.find_book)
+            top_layout.addWidget(find_book_btn)
 
         # Additional buttons for readers
         if user_role == 'reader':
@@ -83,8 +85,9 @@ class BookInfoUI(QDialog):
                     edit_btn.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
                     delete_btn.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
                     
-                    edit_btn.clicked.connect(lambda _, r=row: self.edit_book(r))
-                    delete_btn.clicked.connect(lambda _, r=row: self.delete_book(r))
+                    # Use partial to bind the row index to the button click handlers
+                    edit_btn.clicked.connect(partial(self.edit_book, row))
+                    delete_btn.clicked.connect(partial(self.delete_book, row))
                     action_layout.addWidget(edit_btn)
                     action_layout.addWidget(delete_btn)
 
@@ -149,9 +152,19 @@ class BookInfoUI(QDialog):
 
     def borrow_book(self, row):
         try:
+            # Check if the row is valid
+            if row < 0 or row >= self.table.rowCount():
+                QMessageBox.warning(self, "错误", "请选择有效的图书。")
+                return
+
             reader_name, ok = QInputDialog.getText(self, "借阅图书", "输入读者姓名:")
             if ok and reader_name:
-                book_title = self.table.item(row, 0).text()
+                book_title_item = self.table.item(row, 0)
+                if book_title_item is None:
+                    QMessageBox.critical(self, "错误", "无法获取图书信息。")
+                    return
+
+                book_title = book_title_item.text()
                 borrow_book(reader_name, book_title)  # Call the function from functions.py
                 self.load_book_data()  # Refresh the table
                 QMessageBox.information(self, "成功", f"图书 '{book_title}' 已成功借阅。")
@@ -160,9 +173,19 @@ class BookInfoUI(QDialog):
 
     def return_book(self, row):
         try:
+            # Check if the row is valid
+            if row < 0 or row >= self.table.rowCount():
+                QMessageBox.warning(self, "错误", "请选择有效的图书。")
+                return
+
             reader_name, ok = QInputDialog.getText(self, "归还图书", "输入读者姓名:")
             if ok and reader_name:
-                book_title = self.table.item(row, 0).text()
+                book_title_item = self.table.item(row, 0)
+                if book_title_item is None:
+                    QMessageBox.critical(self, "错误", "无法获取图书信息。")
+                    return
+
+                book_title = book_title_item.text()
                 return_book(reader_name, book_title)  # Call the function from functions.py
                 self.load_book_data()  # Refresh the table
                 QMessageBox.information(self, "成功", f"图书 '{book_title}' 已成功归还。")

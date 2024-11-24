@@ -406,3 +406,24 @@ def get_thesis_statistics():
         print(f"Error getting thesis statistics: {e}")
     finally:
         cursor.close()
+
+def query_thesis_by_doi(doi):
+    try:
+        # Use a context manager to handle the connection
+        with Connector.get_connection() as connection:
+            with connection.cursor() as cursor:
+                # Prepare the SQL query to find a thesis by DOI
+                query = "SELECT * FROM theses WHERE doi = %s"
+                
+                # Execute the query
+                cursor.execute(query, (doi,))
+                
+                # Fetch the result
+                thesis = cursor.fetchone()
+                
+                return thesis  # Returns None if no thesis is found, otherwise returns the thesis record
+
+    except Exception as e:
+        # Print detailed error information
+        print(f"Database error: {e}")
+        return None

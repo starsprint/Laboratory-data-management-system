@@ -1,6 +1,6 @@
 from PySide6.QtWidgets import QDialog, QVBoxLayout, QHBoxLayout, QTableWidget, QTableWidgetItem, QPushButton, QLabel, QMessageBox, QWidget, QInputDialog, QSizePolicy
 from function.functions import query_readers, query_reader, add_reader, edit_reader, delete_reader
-
+from functools import partial
 class ReaderInfoUI(QDialog):
     def __init__(self, user_role):
         super().__init__()
@@ -57,8 +57,8 @@ class ReaderInfoUI(QDialog):
             self.table.setItem(row, 2, QTableWidgetItem(reader[2]))  # Phone
 
             # Actions based on user role
-            action_layout = QHBoxLayout()
             if self.user_role == 'admin':
+                action_layout = QHBoxLayout()
                 edit_btn = QPushButton("编辑")
                 delete_btn = QPushButton("删除")
                 
@@ -70,14 +70,15 @@ class ReaderInfoUI(QDialog):
                 edit_btn.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
                 delete_btn.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
                 
-                edit_btn.clicked.connect(lambda _, r=row: self.edit_reader(r))
-                delete_btn.clicked.connect(lambda _, r=row: self.delete_reader(r))
+                # Use partial to bind the row index to the button click handlers
+                edit_btn.clicked.connect(partial(self.edit_reader, row))
+                delete_btn.clicked.connect(partial(self.delete_reader, row))
                 action_layout.addWidget(edit_btn)
                 action_layout.addWidget(delete_btn)
 
-            action_widget = QWidget()
-            action_widget.setLayout(action_layout)
-            self.table.setCellWidget(row, 3, action_widget)
+                action_widget = QWidget()
+                action_widget.setLayout(action_layout)
+                self.table.setCellWidget(row, 3, action_widget)
 
     def find_reader(self):
         name, ok = QInputDialog.getText(self, "查找读者", "输入读者姓名:")
